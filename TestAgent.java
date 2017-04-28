@@ -1,12 +1,15 @@
-import java.util.LinkedList;
-
 /**
- * Created by IntelliJ IDEA.
- * User: verman
- * Date: 24.03.2014
- * Time: 10:42
- * To change this template use File | Settings | File Templates.
+ * Sudoku Solver, uses recursive TreeSearch. For every iteration of Tree Search first fills in easy to compute
+ * values (such as: only one value left to place). After, scores every cell based on a metric based upon two components, and continues the
+ * tree search on the highest scoring item (=easiest to solve).
+ * Uses class structure: Field for the complete sudoku field, Fielditem for a single cell. Cells do know their
+ * neighboring cells by pointers, and are able to call them directly such that they update their score.
+ * 
+ * @author Jérôme Oesch
+ * @version 1.0
  */
+
+import java.util.LinkedList;
 
 
 public class TestAgent implements SudokuAgent {
@@ -15,23 +18,38 @@ public class TestAgent implements SudokuAgent {
 
 	private String name;
 
+	
+	/**
+	 * Constructor, sets name.
+	 */
 	TestAgent()
 	{
 		name = "FatalitySudokuSmasher";
 
 	}
 
-
+	/**
+	 * Entry point for Sudokusolver.
+	 * Field: The complete Sudoku-field structure.
+	 */
 	public int[][] solve(int dimension, int[][] _puzzle){
 
 		puzzle = new Field(_puzzle, dimension);
 		
 		Field output = SearchTree(puzzle);
-
+		
 		return output.export();
 	}
 	
-	public Field SearchTree(Field puzzle) {		
+	
+	
+	/**
+	 * Recursive Search Tree Method. Is invoked 81 times at maximum.
+	 * @param puzzle: The Sudoku to solve
+	 * @return Null if unsolvable, Field if Sudoku is solved.
+	 */
+	public Field SearchTree(Field puzzle) {	
+		//set cell values for all cells where only one value is still available
 		boolean singlesExisting = true;
 		while(singlesExisting) {
 			if (singlesExisting) {
@@ -48,6 +66,7 @@ public class TestAgent implements SudokuAgent {
 			} 
 		}
 		
+		//check whether sudoku has errors, or if it is already solved.
 		boolean puzzleComplete = true;
 		boolean puzzleUnsolvable = false;
 		for (int i = 0; i < puzzle.list.length; i++) {
@@ -101,6 +120,7 @@ public class TestAgent implements SudokuAgent {
 				}
  			}
 		}
+		//recusively call SearchTree for all possible value ranges.
 		for (int i = 0; i < puzzleList.size(); i++) {
 			Field returnField = null;
 			returnField = SearchTree(puzzleList.get(i));
@@ -122,6 +142,11 @@ public class TestAgent implements SudokuAgent {
 		this.name = name;
 	}
 
+	/**
+	 * Prints the given Sudoku to the console.
+	 * @param _puzzle: Sudoku to print
+	 * @param message: Custom message
+	 */
 	public static void printValues(Field _puzzle, String message) {
 		System.out.println(message);
 		for (int i = 0; i < _puzzle.dimField; i++) {
@@ -132,6 +157,11 @@ public class TestAgent implements SudokuAgent {
 		}
 	}
 
+	/**
+	 * Prints the given Sudoku field scores to the console.
+	 * @param _puzzle: Sudoku for which cell scores should be printed.
+	 * @param message: Custom message
+	 */
 	public static void printScores(Field _puzzle, String message) {
 		System.out.println(message);
 		for (int i = 0; i < _puzzle.dimField; i++) {

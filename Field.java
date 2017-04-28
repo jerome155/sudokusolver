@@ -1,12 +1,16 @@
-import java.io.Serializable;
+/**
+ * A field is a complete Sudoku field. It stores the map, creates for every cell a Fielditem. Additionaly creates 
+ * pointer-arrays for each fielditem that contain all neighboring cells (in its square, vertical and horizontal line)
+ * 
+ * @author Jérôme Oesch
+ * @version 1.0
+ */
+
 import java.util.HashMap;
 
-public class Field implements Serializable{
+public class Field {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1402077933342395199L;
+
 	public FieldItem[][] field;
 	public FieldItem[] list;
 	public int dimField;
@@ -15,6 +19,10 @@ public class Field implements Serializable{
 	public HashMap<Integer, Integer> frequencyScore;
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Copy constructor, has to recreate pointer arrays.
+	 * @param oldField: The sudoku field to copy.
+	 */
 	Field(Field oldField) {
 		
 		this.dimField = oldField.dimField;
@@ -24,6 +32,7 @@ public class Field implements Serializable{
 		this.field = new FieldItem[this.dimField][this.dimField];
 		this.list = new FieldItem[this.dimField*this.dimField];
 		
+		//create pointer arrays
 		int countField = 0;
 		for (int i = 0; i < oldField.dimField; i++) {
 			for (int j = 0; j < oldField.dimField; j++) {
@@ -60,6 +69,11 @@ public class Field implements Serializable{
 		}
 	}
 	
+	/**
+	 * Original constructor.
+	 * @param puzzle: The sudoku field
+	 * @param _dimension: The dimension of a sudoku.
+	 */
 	Field(int[][] puzzle, int _dimension) {
 		dimSquare = _dimension;
 		dimField = _dimension*_dimension;
@@ -116,8 +130,11 @@ public class Field implements Serializable{
 		calculateTotalScore();
 	}
 
-	//a field item has a score based on how many different elements can be placed in one cell, as well as how 
-	//many members of a number are existing in the complete field.
+	/**
+	 * Calculates part two of the score of the cell. FrequencyScore is based on how many times a certain value has
+	 * already been filled into the complete sudoku field. The more times it has been filled in, the higher the 
+	 * chance for it to be solved.
+	 */
 	public void calculateFrequencyScore() {
 		frequencyScore = new HashMap<Integer, Integer>();
 		for (int i = 1; i < dimField+1; i++) {
@@ -142,18 +159,24 @@ public class Field implements Serializable{
 		}
 	}
 	
+	/**
+	 * Sums up all the scores of all cells to get a field score.
+	 * @return
+	 */
 	public float calculateTotalScore() {
 		totalScore = 0;
 		for (int i = 0; i < dimField; i++) {
 			for (int j = 0; j < dimField; j++) {
-				//field[i][j].calculateValueRange();
-				//field[i][j].calculateScore();
 				totalScore += field[i][j].score;
 			}
 		}
 		return totalScore;
 	}
 
+	/**
+	 * Export function that returns from a Field an array int[][] to submit the solution.
+	 * @return int[][] array.
+	 */
 	public int[][] export() {
 		int[][] output = new int[dimField][dimField];
 		for (int i = 0; i < dimField; i++) {

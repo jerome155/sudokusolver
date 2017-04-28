@@ -1,13 +1,16 @@
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class FieldItem implements Serializable{
+/**
+ * A fieldItem is a single cell in a sudoku game. Every cell calculates its score and its possible range of values
+ * itself. In addition, a cell knows its neighboring cells by a pointer array, and can notify those cells to perform
+ * an action.
+ * @author jeromeoesch
+ * @version 1.0
+ */
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1219829686281456494L;
+public class FieldItem {
+
 	private float SCORE_FOUND_FREQ;
 	private boolean preDefined;
 	
@@ -25,6 +28,15 @@ public class FieldItem implements Serializable{
 	private int dimSquare;
 	private int dimField;
 
+	/**
+	 * Constructor.
+	 * @param _posX: Coordinate X of cell in sudoku game
+	 * @param _posY: Coordinate Y of cell in sudoku game
+	 * @param _preDefined: Whether the value is known from the beginning of the game
+	 * @param _correct: True if cell approved to be correct (can be revoked)
+	 * @param _value: The value of the cell
+	 * @param _dimSquare: The dimension of the elements in a square (=dimension^2)
+	 */
 	FieldItem(int _posX, int _posY, boolean _preDefined, boolean _correct, int _value, int _dimSquare) {
 		posX = _posX;
 		posY = _posY;
@@ -41,6 +53,10 @@ public class FieldItem implements Serializable{
 
 	}
 	
+	/**
+	 * Copy Constructor of FieldItem
+	 * @param oldFieldItem: the old fieldItem to be copied.
+	 */
 	@SuppressWarnings("unchecked")
 	FieldItem(FieldItem oldFieldItem) {
 		this.posX = oldFieldItem.posX;
@@ -59,6 +75,9 @@ public class FieldItem implements Serializable{
 		frequencyScore = new HashMap<Integer, Integer>();
 	}
 
+	/**
+	 * Calculates the range of possible values that can still be set for a certain cell.
+	 */
 	public void calculateValueRange() {
 		valueRange = new ArrayList<Integer>();
 		if (valueFound) {
@@ -80,7 +99,13 @@ public class FieldItem implements Serializable{
 			}
 		}
 	}
-
+	
+	/**
+	 * Calculates a score for every cell. Fielditem has a score based on how many different elements can be placed 
+	 * in one cell (=valueRange), as well as how many members of a number are still missing in the complete field.
+	 * The smaller the valueRange of a cell, and the more elements of a certain number have been detected, the
+	 * higher the score.
+	 */
 	public void calculateScore() {
 		score = 0;
 		if (valueFound) {
@@ -92,6 +117,10 @@ public class FieldItem implements Serializable{
 		}
 	}
 
+	/**
+	 * Is called when a neighboring cell updates its value. It causes the adjacient cells to recalculate their
+	 * valueRange (possible set of values to set into cell), as well as their score.
+	 */
 	public void notifyAdjacentCells() {
 		for (int i = 0; i < dimField; i++) {
 			if (lineMembersX[i] != this && !lineMembersX[i].valueFound) {
@@ -116,6 +145,10 @@ public class FieldItem implements Serializable{
 		}
 	}
 	
+	/**
+	 * Used to set the value of a cell.
+	 * @param _value: The value to be set for a cell.
+	 */
 	public void setValue(int _value) {
 		if (valueRange.contains(new Integer(_value))) {
 			value = _value;
